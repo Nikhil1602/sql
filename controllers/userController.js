@@ -85,6 +85,30 @@ const deleteUser = (req, res) => {
 
 }
 
+const getAllUser = (req, res) => {
+
+    const query = `
+        SELECT * FROM Users
+    `;
+
+    db.query(query, (error, result) => {
+
+        if (error) {
+            console.log(error);
+            db.end();
+            return res.status(500).send("Something went wrong!")
+        }
+
+        if (result.affectedRows === 0) {
+            return res.status(404).send("User not found");
+        }
+
+        return res.status(200).send(result);
+
+    });
+
+}
+
 module.exports = {
-    createUser, updateUser, deleteUser
+    createUser, updateUser, deleteUser, getAllUser
 }
