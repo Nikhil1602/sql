@@ -1,139 +1,133 @@
-const db = require("../utils/db");
+const Students = require("../models/students");
 
-const createStudent = (req, res) => {
+const createStudent = async (req, res) => {
 
-    const name = req.body.name;
-    const email = req.body.email;
-    const age = req.body.age;
+    try {
 
-    const query = `
-        INSERT INTO Students (name, email, age)
-        VALUES (?, ?, ?)
-    `;
+        const name = req.body.name;
+        const email = req.body.email;
+        const age = req.body.age;
 
-    db.query(query, [name, email, age], (error) => {
+        const student = await Students.create({
+            name: name,
+            email: email,
+            age: age
+        });
 
-        if (error) {
-            console.log(error);
-            db.end();
-            return res.status(500).send("Something went wrong!")
-        }
+        return res.status(201).send(student);
 
-        return res.status(201).send("Student created successfully!");
+    } catch (err) {
 
-    })
+        console.log(err);
+        return res.status(500).send("Something went wrong!");
 
-}
-
-const updateStudent = (req, res) => {
-
-    const id = req.params.id;
-    const name = req.body.name;
-    const email = req.body.email;
-
-    if (!name || !email) {
-        return res.status(400).send("Name and email are required");
     }
 
-    const query = `
-        UPDATE Students
-        SET name = ?, email = ?
-        WHERE id = ?
-    `;
+}
 
-    db.query(query, [name, email, id], (error, result) => {
+const updateStudent = async (req, res) => {
 
-        if (error) {
-            console.log(error);
-            db.end();
-            return res.status(500).send("Something went wrong!")
+    try {
+
+        const id = req.params.id;
+        const name = req.body.name;
+        const email = req.body.email;
+
+        if (!name || !email) {
+            return res.status(400).send("Name and email are required");
         }
 
-        if (result.affectedRows === 0) {
-            return res.status(404).send("Student not found");
+        const student = await Students.findByPk(id);
+
+        if (!student) {
+            return res.status(404).send("Student not found!");
         }
 
-        return res.status(200).send("Student updated successfully!");
+        student.name = name;
+        student.email = email;
 
-    })
+        await student.save();
+
+        return res.status(201).send(student);
+
+    } catch (err) {
+
+        console.log(err);
+        return res.status(500).send("Something went wrong!");
+
+    }
+
 
 }
 
-const deleteStudent = (req, res) => {
+const deleteStudent = async (req, res) => {
 
-    const id = req.params.id;
+    try {
 
-    const query = `
-        DELETE FROM Students
-        WHERE id="${id}"
-    `;
+        const id = req.params.id;
 
-    db.query(query, (error, result) => {
-
-        if (error) {
-            console.log(error);
-            db.end();
-            return res.status(500).send("Something went wrong!")
+        if (!id) {
+            return res.status(400).send("id is required");
         }
 
-        if (result.affectedRows === 0) {
-            return res.status(404).send("Student not found");
+        const student = await Students.destroy({ where: { id: id } });
+
+        if (!student) {
+            return res.status(404).send("Student not found!");
         }
 
-        return res.status(200).send("Student deleted successfully!");
+        return res.status(201).send(student);
 
-    });
+    } catch (err) {
+
+        console.log(err);
+        return res.status(500).send("Something went wrong!");
+
+    }
 
 }
 
-const getAllStudents = (req, res) => {
+const getAllStudents = async (req, res) => {
 
-    const query = `
-        SELECT * FROM Students
-    `;
+    try {
 
-    db.query(query, (error, result) => {
+        const students = await Students.findAll();
 
-        if (error) {
-            console.log(error);
-            db.end();
-            return res.status(500).send("Something went wrong!")
+        if (!students) {
+            return res.status(404).send("Students not found!");
         }
 
-        if (result.affectedRows === 0) {
-            return res.status(404).send("Students not found");
-        }
+        return res.status(200).send(students);
 
-        return res.status(200).send(result);
+    } catch (err) {
 
-    });
+        console.log(err);
+        return res.status(500).send("Something went wrong!");
+
+    }
 
 }
 
-const getStudent = (req, res) => {
+const getStudent = async (req, res) => {
 
-    const id = req.params.query;
+    try {
 
-    const query = `
-        SELECT * FROM Students
-        WHERE id = ?
-    `;
+        const id = req.params.query;
 
-    db.query(query, [id], (error, result) => {
+        const student = await Students.findByPk(id);
 
-        if (error) {
-            console.log(error);
-            db.end();
-            return res.status(500).send("Something went wrong!")
+        if (!student) {
+            return res.status(404).send("Student not found!");
         }
 
-        if (result.affectedRows === 0) {
-            return res.status(404).send("Student not found");
-        }
+        return res.status(200).send(student);
 
-        return res.status(200).send(result);
+    } catch (err) {
 
-    });
+        console.log(err);
+        return res.status(500).send("Something went wrong!");
+
+    }
 
 }
 
