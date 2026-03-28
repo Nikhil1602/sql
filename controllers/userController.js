@@ -6,10 +6,14 @@ const createUser = async (req, res) => {
 
         const name = req.body.name;
         const email = req.body.email;
+        const phone = req.body.phone;
+        const age = req.body.age;
 
         const user = await Users.create({
             name: name,
             email: email,
+            phone: phone,
+            age: age
         });
 
         return res.status(201).send(user);
@@ -30,6 +34,8 @@ const updateUser = async (req, res) => {
         const id = req.params.id;
         const name = req.body.name;
         const email = req.body.email;
+        const phone = req.body.phone;
+        const age = req.body.age;
 
         if (!name || !email) {
             return res.status(400).send("Name and email are required");
@@ -43,6 +49,8 @@ const updateUser = async (req, res) => {
 
         user.name = name;
         user.email = email;
+        user.phone = phone;
+        user.age = age;
 
         await user.save();
 

@@ -7,12 +7,14 @@ const studentRoutes = require("./routes/studentRoutes");
 const app = express();
 
 app.use(express.json());
+app.use(express.static("public"));
+
 app.use("/users", userRoutes);
 app.use("/students", studentRoutes);
 app.use("/buses", busRoutes);
 
 app.get("/", (req, res) => {
-    res.send("Hello World!");
+    res.sendFile(__dirname + "/public/index.html");
 });
 
 db.sync({ force: true }).then(() => {
