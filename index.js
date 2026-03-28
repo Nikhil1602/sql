@@ -1,4 +1,5 @@
 const express = require("express");
+const db = require("./utils/db");
 const userRoutes = require("./routes/userRoutes");
 const busRoutes = require("./routes/busRoutes");
 const studentRoutes = require("./routes/studentRoutes");
@@ -14,6 +15,14 @@ app.get("/", (req, res) => {
     res.send("Hello World!");
 });
 
-app.listen(3000, () => {
-    console.log("Server listening on port 3000");
+db.sync({ force: true }).then(() => {
+
+    app.listen(3000, () => {
+        console.log("Server listening on port 3000");
+    });
+
+}).catch((err) => {
+
+    console.log(err);
+
 });

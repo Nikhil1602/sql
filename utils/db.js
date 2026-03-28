@@ -1,65 +1,30 @@
 require('dotenv').config();
 
-const mysql = require("mysql2");
+const { Sequelize } = require('sequelize');
 
-const connection = mysql.createConnection({
-    host: process.env.HOST,
-    user: process.env.USER,
-    password: process.env.PASSWORD,
-    database: process.env.DB,
-    multipleStatements: true
+const USER = process.env.USER;
+const PASSWORD = process.env.PASSWORD;
+const HOST = process.env.HOST;
+const DB = process.env.DB;
+
+const sequelize = new Sequelize(DB, USER, PASSWORD, {
+    host: HOST,
+    dialect: "mysql"
 });
 
-connection.connect((err) => {
+(async () => {
 
-    if (err) {
+    try {
+
+        await sequelize.authenticate();
+        console.log("Connection established...");
+
+    } catch (err) {
+
         console.log(err);
-        return;
+
     }
 
-    const query = `
-        CREATE TABLE IF NOT EXISTS Users (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(255),
-            email VARCHAR(255)
-        );
+})();
 
-        CREATE TABLE IF NOT EXISTS Students (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(255),
-            email VARCHAR(255) UNIQUE,
-            age INT
-        );
-
-        CREATE TABLE IF NOT EXISTS Buses (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            busNumber VARCHAR(255),
-            totalSeats INT,
-            availableSeats INT
-        );
-
-        CREATE TABLE IF NOT EXISTS Bookings (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            seatNumber VARCHAR(255)
-        );
-
-        CREATE TABLE IF NOT EXISTS Payments (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            amountPaid VARCHAR(255),
-            paymentStatus VARCHAR(255)
-        );
-    `;
-
-    connection.query(query, (err) => {
-        if (err) {
-            console.log(err);
-            connection.end();
-            return;
-        }
-
-        console.log("Users, Students, Buses, Bookings, and Payments tables created...");
-    })
-
-});
-
-module.exports = connection;
+module.exports = sequelize;
