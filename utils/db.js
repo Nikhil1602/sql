@@ -24,6 +24,13 @@ connection.connect((err) => {
             email VARCHAR(255)
         );
 
+        CREATE TABLE IF NOT EXISTS Students (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(255),
+            email VARCHAR(255) UNIQUE,
+            age INT
+        );
+
         CREATE TABLE IF NOT EXISTS Buses (
             id INT AUTO_INCREMENT PRIMARY KEY,
             busNumber VARCHAR(255),
@@ -50,7 +57,7 @@ connection.connect((err) => {
             return;
         }
 
-        console.log("Users, Buses, Bookings, and Payments tables created...");
+        console.log("Users, Students, Buses, Bookings, and Payments tables created...");
     })
 
 });
