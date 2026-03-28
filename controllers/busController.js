@@ -1,54 +1,57 @@
-const db = require("../utils/db");
+const { Op } = require("sequelize");
+const Buses = require("../models/buses");
 
 const createBus = (req, res) => {
 
-    const busNo = req.body.busNumber;
-    const totalSeats = req.body.totalSeats;
-    const availableSeats = req.body.availableSeats;
+    try {
 
-    const query = `
-        INSERT INTO Buses (busNumber, totalSeats, availableSeats)
-        VALUES (?, ?, ?)
-    `;
+        const busNo = req.body.busNumber;
+        const totalSeats = req.body.totalSeats;
+        const availableSeats = req.body.availableSeats;
 
-    db.query(query, [busNo, totalSeats, availableSeats], (error) => {
+        const bus = Buses.create({
+            busNumber: busNo,
+            totalSeats: totalSeats,
+            availableSeats: availableSeats
+        });
 
-        if (error) {
-            console.log(error);
-            db.end();
-            return res.status(500).send("Something went wrong!")
-        }
+        return res.status(201).send(bus);
 
-        return res.status(201).send("Bus created successfully!");
+    } catch (err) {
 
-    })
+        console.log(err);
+        return res.status(500).send("Something went wrong!");
+
+    }
 
 }
 
 const getAllBusesBySeats = (req, res) => {
 
-    const seatNo = req.params.seatNo;
+    try {
 
-    const query = `
-        SELECT * FROM Buses
-        WHERE availableSeats > ?
-    `;
+        const seatNo = req.params.seatNo;
 
-    db.query(query, [seatNo], (error, result) => {
+        const buses = Buses.findAll({
+            where: {
+                availableSeats: {
+                    [Op.gt]: seatNo
+                }
+            }
+        });
 
-        if (error) {
-            console.log(error);
-            db.end();
-            return res.status(500).send("Something went wrong!")
+        if (!buses) {
+            return res.status(404).send("No buses found!");
         }
 
-        if (result.affectedRows === 0) {
-            return res.status(404).send("Bus not found");
-        }
+        return res.status(200).send(buses);
 
-        return res.status(200).send(result);
+    } catch (err) {
 
-    });
+        console.log(err);
+        return res.status(500).send("Something went wrong!");
+
+    }
 
 }
 

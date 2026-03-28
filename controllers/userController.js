@@ -1,111 +1,107 @@
-const db = require("../utils/db");
+const Users = require("../models/users");
 
-const createUser = (req, res) => {
+const createUser = async (req, res) => {
 
-    const name = req.body.name;
-    const email = req.body.email;
+    try {
 
-    const query = `
-        INSERT INTO Users (name, email)
-        VALUES (?, ?)
-    `;
+        const name = req.body.name;
+        const email = req.body.email;
 
-    db.query(query, [name, email], (error) => {
+        const user = await Users.create({
+            name: name,
+            email: email,
+        });
 
-        if (error) {
-            console.log(error);
-            db.end();
-            return res.status(500).send("Something went wrong!")
-        }
+        return res.status(201).send(user);
 
-        return res.status(201).send("User created successfully!");
+    } catch (err) {
 
-    })
+        console.log(err);
+        return res.status(500).send("Something went wrong!");
 
-}
-
-const updateUser = (req, res) => {
-
-    const id = req.params.id;
-    const name = req.body.name;
-    const email = req.body.email;
-
-    if (!name || !email) {
-        return res.status(400).send("Name and email are required");
     }
 
-    const query = `
-        UPDATE Users
-        SET name = ?, email = ?
-        WHERE id = ?
-    `;
+}
 
-    db.query(query, [name, email, id], (error, result) => {
+const updateUser = async (req, res) => {
 
-        if (error) {
-            console.log(error);
-            db.end();
-            return res.status(500).send("Something went wrong!")
+    try {
+
+        const id = req.params.id;
+        const name = req.body.name;
+        const email = req.body.email;
+
+        if (!name || !email) {
+            return res.status(400).send("Name and email are required");
         }
 
-        if (result.affectedRows === 0) {
-            return res.status(404).send("User not found");
+        const user = await Users.findByPk(id);
+
+        if (!user) {
+            return res.status(404).send("User not found!");
         }
 
-        return res.status(200).send("User updated successfully!");
+        user.name = name;
+        user.email = email;
 
-    })
+        await user.save();
+
+        return res.status(201).send(user);
+
+    } catch (err) {
+
+        console.log(err);
+        return res.status(500).send("Something went wrong!");
+
+    }
 
 }
 
-const deleteUser = (req, res) => {
+const deleteUser = async (req, res) => {
 
-    const id = req.params.id;
+    try {
 
-    const query = `
-        DELETE FROM Users
-        WHERE id="${id}"
-    `;
+        const id = req.params.id;
 
-    db.query(query, (error, result) => {
-
-        if (error) {
-            console.log(error);
-            db.end();
-            return res.status(500).send("Something went wrong!")
+        if (!id) {
+            return res.status(400).send("id is required");
         }
 
-        if (result.affectedRows === 0) {
-            return res.status(404).send("User not found");
+        const user = await Users.destroy({ where: { id: id } });
+
+        if (!user) {
+            return res.status(404).send("User not found!");
         }
 
-        return res.status(200).send("User deleted successfully!");
+        return res.status(201).send(user);
 
-    });
+    } catch (err) {
+
+        console.log(err);
+        return res.status(500).send("Something went wrong!");
+
+    }
 
 }
 
-const getAllUser = (req, res) => {
+const getAllUser = async (req, res) => {
 
-    const query = `
-        SELECT * FROM Users
-    `;
+    try {
 
-    db.query(query, (error, result) => {
+        const users = await Users.findAll();
 
-        if (error) {
-            console.log(error);
-            db.end();
-            return res.status(500).send("Something went wrong!")
+        if (!users) {
+            return res.status(404).send("Users not found!");
         }
 
-        if (result.affectedRows === 0) {
-            return res.status(404).send("User not found");
-        }
+        return res.status(200).send(users);
 
-        return res.status(200).send(result);
+    } catch (err) {
 
-    });
+        console.log(err);
+        return res.status(500).send("Something went wrong!");
+
+    }
 
 }
 
