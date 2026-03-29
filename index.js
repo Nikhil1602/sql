@@ -5,6 +5,7 @@ const busRoutes = require("./routes/busRoutes");
 const studentRoutes = require("./routes/studentRoutes");
 const departmentRoutes = require("./routes/deaprtmentRoute");
 const courseRoutes = require("./routes/courseRoutes");
+const expenseRoutes = require("./routes/expenseRoutes");
 
 require("./models");
 
@@ -18,6 +19,7 @@ app.use("/students", studentRoutes);
 app.use("/buses", busRoutes);
 app.use("/department", departmentRoutes);
 app.use("/courses", courseRoutes);
+app.use("/expenses", expenseRoutes);
 
 app.get("/", (req, res) => {
     res.sendFile(__dirname + "/public/index.html");
