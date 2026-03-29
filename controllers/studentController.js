@@ -7,11 +7,13 @@ const createStudent = async (req, res) => {
         const name = req.body.name;
         const email = req.body.email;
         const age = req.body.age;
+        const departmentId = req.body.departmentId;
 
         const student = await Students.create({
             name: name,
             email: email,
-            age: age
+            age: age,
+            departmentId: departmentId
         });
 
         return res.status(201).send(student);
