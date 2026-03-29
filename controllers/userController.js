@@ -1,3 +1,4 @@
+const Bookings = require("../models/bookings");
 const Users = require("../models/users");
 
 const createUser = async (req, res) => {
@@ -113,6 +114,43 @@ const getAllUser = async (req, res) => {
 
 }
 
+const getAllUserBookings = async (req, res) => {
+
+    try {
+
+        const bookings = await Bookings.findAll({
+            where: { userId: req.params.id },
+            attributes: ["id", "seatNumber"],
+            include: {
+                association: "bus",
+                attributes: ["busNumber"]
+            }
+        });
+
+        const result = bookings.map(b => ({
+            id: b.id,
+            seatNumber: b.seatNumber,
+            bus: {
+                busNumber: b.bus?.busNumber
+            }
+        }));
+
+        if (!bookings || result.length === 0) {
+            return res.status(404).send("Bookings not found!");
+        }
+
+        return res.status(200).json(result);
+
+
+    } catch (err) {
+
+        console.log(err);
+        return res.status(500).send("Something went wrong!");
+
+    }
+
+}
+
 module.exports = {
-    createUser, updateUser, deleteUser, getAllUser
+    createUser, updateUser, deleteUser, getAllUser, getAllUserBookings
 }
